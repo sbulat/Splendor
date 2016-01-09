@@ -92,7 +92,6 @@ class Player(object):
 		# print Glob.tokensPos[token.bonus] 
 		self.tokens.insert(0, Glob.tokens.pop(Glob.tokens.index(token)))
 
-	# @staticmethod
 	def can_buy_second_token(self, token):
 		tmpValues = self.tmpTokens.values()
 		if tmpValues.count(1)==1 and self.tmpTokens.get(token.bonus)==1:

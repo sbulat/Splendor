@@ -15,9 +15,10 @@ class Game(object):
 			self.secLev.append(Glob.secLevCards.pop())
 			self.thirdLev.append(Glob.thirdLevCards.pop())
 
-		self.players = [Player(), Player()]
+		self.players = [Player(), Player(),Player(), Player()]
 		self.actualPlayer = self.players[0]
 		self.textId = Glob.canvas.create_text(Glob.WINDOW_X-5, 15, anchor='e', text='Player #'+str(self.actualPlayer.id))
+		self.playerIter = self.player_iterator(0)
 
 	def __getitem__(self):
 		return self.firstLev + self.secLev + self.thirdLev
@@ -97,21 +98,11 @@ class Game(object):
 		for card in self.actualPlayer.cards:
 			Glob.canvas.itemconfig(card.tag, state='hidden')
 
-		# self.actualPlayer.tokenCount = 0
-		# self.actualPlayer.gotToken = False
-		# self.actualPlayer.tmpTokens = copy.deepcopy(Glob.stones)
-		# print self.actualPlayer.tokenCount
-		# print self.actualPlayer.gotToken
-		# print self.actualPlayer.tmpTokens
 		self.actualPlayer.tokenCount = 0
 		self.actualPlayer.gotToken = False
 		self.actualPlayer.tmpTokens = copy.deepcopy(Glob.stones)
 
-		self.actualPlayer = self.players[1] if self.actualPlayer==self.players[0] else self.players[0]
-
-		# print self.actualPlayer.tokenCount
-		# print self.actualPlayer.gotToken
-		# print self.actualPlayer.tmpTokens
+		self.actualPlayer = self.playerIter.next()
 
 		for token in self.actualPlayer.tokens:
 			Glob.canvas.itemconfig(token.tag, state='normal')
@@ -119,7 +110,13 @@ class Game(object):
 			Glob.canvas.itemconfig(card.tag, state='normal')
 
 		Glob.canvas.delete(self.textId)
-		self.textId = Glob.canvas.create_text(Glob.WINDOW_X-5, 5, anchor='e', text='Player #'+str(self.actualPlayer.id))
+		self.textId = Glob.canvas.create_text(Glob.WINDOW_X-5, 15, anchor='e', text='Player #'+str(self.actualPlayer.id))
 
 		self.actualPlayer.state.update_state()
-			
+
+	def player_iterator(self, start):
+		idx = start
+		while True:
+			idx += 1
+			idx = idx % len(self.players)
+			yield self.players[idx]
