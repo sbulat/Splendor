@@ -14,7 +14,7 @@ class Token(object):
 		self.tag = str(self.ov) + 't'
 		Glob.canvas.itemconfig(self.ov, tags=self.tag)
 		Glob.canvas.create_image(self.a[0]+(Glob.TOKEN_DIAMETER/2), self.a[1]+(Glob.TOKEN_DIAMETER/2), tags=self.tag, image=self.image)
-		# Glob.canvas.pack()
+		Glob.canvas.pack()
 
 		Glob.tokens.insert(0, self)
 
@@ -30,7 +30,5 @@ class Token(object):
 			raise TypeError()
 
 		self.__setitem__(self.a[0]+x, self.a[1]+y)
-		# self.a = self.a[0]+x, self.a[1]+y
-		# self.b = self.a[0]+Glob.SIZE_X, self.a[1]+Glob.SIZE_Y
 		Glob.canvas.move(self.tag, x, y)
 		Glob.canvas.tag_raise(self.tag)		
