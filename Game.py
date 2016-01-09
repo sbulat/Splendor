@@ -11,20 +11,24 @@ class Game(object):
 		self.firstLev = [Glob.firstLevCards.pop() for i in range(4)]
 		self.secLev = [Glob.secLevCards.pop() for i in range(4)]
 		self.thirdLev = [Glob.thirdLevCards.pop() for i in range(4)]
-		# for i in range(4):
-		# 	self.firstLev.append(Glob.firstLevCards.pop())
-		# 	self.secLev.append(Glob.secLevCards.pop())
-		# 	self.thirdLev.append(Glob.thirdLevCards.pop())
 
 		self.players = [Player(), Player()]
 		self.actualPlayer = self.players[0]
 		self.textId = Glob.canvas.create_text(Glob.WINDOW_X-5, 15, anchor='e', text='Player #'+str(self.actualPlayer.id))
 		self.playerIter = self.player_iterator(0)
-		self.nextTurn = 0
+		self.nextTurn = self.make_button()
 
 	def __getitem__(self):
 		return self.firstLev + self.secLev + self.thirdLev
 
+	# tworzenie przycisku do kończenia tury
+	def make_button(self):
+			b = Button(Glob.root, text='End Turn', command=self.change_player, state='disabled')
+			b.pack()
+			b.place(x=500, y=650)
+			return b
+
+	# rozkładane są 4 karty z każdego stosu - przygotowanie gry
 	def deal_cards(self):
 		x = 150
 		y1 = 350
@@ -45,6 +49,7 @@ class Game(object):
 
 			x+=90
 
+	# gdy któraś z kart zostanie kupiona jest zastępowana odpowiednią ze stosu
 	def draw_new_card(self, cardLevel, card):
 		if cardLevel==FirstLevelCard:
 			self.firstLev.pop(self.firstLev.index(card))
@@ -73,6 +78,7 @@ class Game(object):
 			except IndexError:
 				return
 
+	# zwracanie żetonu do puli
 	def return_token(self, token):
 		try:
 			token.move(Glob.tokens[self.get_index(token.bonus)].a[0] - token.a[0], \
@@ -80,12 +86,14 @@ class Game(object):
 		except TypeError:
 			token.move(Glob.tokensPos[token.bonus][0] - token.a[0], Glob.tokensPos[token.bonus][1] - token.a[1] + 10)
 
+	# pobranie indeksu żetonu z puli, aby wiedzieć gdzie odłozyć żeton
 	@staticmethod
 	def get_index(stone):
 		for token in Glob.tokens:
 			if token.bonus==stone:
 				return Glob.tokens.index(token)
 
+	# sprawdza czy koniec rozgrywki
 	def is_end(self):
 		if(self.actualPlayer.state.vp>=0):
 			tkMessageBox.showinfo("Koniec!", "Wygrał gracz #"+str(self.actualPlayer.id)+"!")
@@ -94,9 +102,10 @@ class Game(object):
 		else:
 			return False
 
+	# funkcja zmiany gracza
 	def change_player(self):
-		# TODO: dodaj ze trzeba wcisnac spacje żeby zmienić gracza
-
+		Glob.game.nextTurn.config(state='disabled')
+		
 		for token in self.actualPlayer.tokens:
 			Glob.canvas.itemconfig(token.tag, state='hidden')
 		for card in self.actualPlayer.cards:
@@ -118,6 +127,7 @@ class Game(object):
 
 		self.actualPlayer.state.update_state()
 
+	# funkcja iterująca po graczach w tablicy self.players
 	def player_iterator(self, start):
 		idx = start
 		while True:

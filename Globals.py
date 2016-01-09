@@ -7,7 +7,7 @@ class Glob(object):
 	# mnoznik - do zmiany szerokości i wysokości
 	# albo po prostu lista dostępnych rozmiarów
 	WINDOW_X = 1024
-	WINDOW_Y = 768
+	WINDOW_Y = 700
 	SIZE_X = 80
 	SIZE_Y = 120
 	TOKEN_DIAMETER = 50
@@ -31,20 +31,3 @@ class Glob(object):
 					'white': PhotoImage(file='./images/diamond.ppm'),
 					'black': PhotoImage(file='./images/onyx.ppm')
 					}
-
-	@staticmethod
-	def B1_click(event):
-		for card in Glob.game.__getitem__():
-			if card.a[0]<=event.x<=card.b[0] and card.a[1]<=event.y<=card.b[1]:
-				Glob.game.actualPlayer.buy_card(card)
-				return
-
-		for token in Glob.tokens:
-			if token.a[0]<=event.x<=token.b[0] and token.a[1]<=event.y<=token.b[1]:
-				Glob.game.actualPlayer.get_token(token)
-				return
-
-	@staticmethod
-	def key_pressed(event):
-		if event.char==' ':
-			Glob.game.nextTurn = 0

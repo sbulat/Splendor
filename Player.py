@@ -58,7 +58,9 @@ class Player(object):
 	# zabieranie żetonu:
 	# można zabrać trzy różne lub dwa tego samego rodzaju
 	def get_token(self, token):
-		if self.tmpTokens[token.bonus]==1:
+		if self.tokenCount>=3 or (2 in self.tmpTokens.values()):
+			return
+		elif self.tmpTokens[token.bonus]==1:
 			if self.can_buy_second_token(token):
 				self.move_token_and_update(token)
 			else:
@@ -70,8 +72,7 @@ class Player(object):
 
 		self.state.update_state()
 		if self.tokenCount==3 or (2 in self.tmpTokens.values()):
-			Glob.game.change_player()
-
+			Glob.game.nextTurn.config(state='normal') # tura wstrzymywana aby gracz mógł zobaczyć co posiada
 
 	# funkcja która przenosi znacznik i aktualizuje właściwości gracza
 	def move_token_and_update(self, token):
