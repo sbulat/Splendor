@@ -11,8 +11,8 @@ class State(object):
 		self.tag = 'state'
 
 	def print_state(self):
-		Glob.canvas.create_text(Glob.WINDOW_X-5, 20, anchor='e', text='VP: '+str(self.vp), tags=self.tag)
-		i = 40
+		Glob.canvas.create_text(Glob.WINDOW_X-5, 35, anchor='e', text='VP: '+str(self.vp), tags=self.tag)
+		i = 55
 		for stone in self.money:
 			Glob.canvas.create_image(Glob.WINDOW_X-5, i, anchor='e', image=Glob.stoneToImage[stone], tags=self.tag)
 			Glob.canvas.create_text(Glob.WINDOW_X-30, i, anchor='e', text=str(self.money[stone]), tags=self.tag)
@@ -24,14 +24,13 @@ class State(object):
 
 class Player(object):
 	count = 0
-	tmpTokens = copy.deepcopy(Glob.stones)
-	tokenCount = 0
-	gotToken = False
 
 	def __init__(self):
 		Player.count += 1
 		self.id = self.count
-		self.endTurn = 0
+		self.tokenCount = 0
+		self.gotToken = False
+		self.tmpTokens = copy.deepcopy(Glob.stones)
 		self.state = State()
 		self.tokens = []
 		self.cards = []
@@ -54,55 +53,53 @@ class Player(object):
 			xT+=65
 
 	def get_token(self, token):
-		# if Player.tokenCount>3:
+		# if self.tokenCount>3:
 		# 	raise NotImplementedError()
-		# elif Player.tokenCount==3 or (2 in Player.tmpTokens.values()):
-		# 	# pass
-		# 	Player.endTurn = 1
+		# elif self.tokenCount==3 or (2 in self.tmpTokens.values()):
+		# 	pass
+		# 	# Player.endTurn = 1
 		# 	# Player.tokenCount = 0
 		# 	# Player.gotToken = False
-		# 	# Player.tmpTokens = copy.deepcopy(Glob.stones)
+		# 	# self.tmpTokens = copy.deepcopy(Glob.stones)
 		# 	# koniec tury gracza
 		# else:
-		if Player.tmpTokens[token.bonus]==1:
+		if self.tmpTokens[token.bonus]==1:
 			if self.can_buy_second_token(token):
 				self.move_token_and_update(token)
 			else:
 				return
-		elif Player.tokenCount==2 and Player.tmpTokens[token.bonus]==1:
+		elif self.tokenCount==2 and self.tmpTokens[token.bonus]==1:
 			return
 		else:
 			self.move_token_and_update(token)
 
 		self.state.update_state()
-		if Player.tokenCount==3 or (2 in Player.tmpTokens.values()):
-			Player.tokenCount = 0
-			Player.gotToken = False
-			Player.tmpTokens = copy.deepcopy(Glob.stones)
+		if self.tokenCount==3 or (2 in self.tmpTokens.values()):
 			Glob.game.change_player()
 
 
 	# funkcja która przenosi znacznik i aktualizuje właściwości gracza
 	def move_token_and_update(self, token):
-		Player.gotToken = True
+		self.gotToken = True
 		self.state.money[token.bonus]+=1
 		self.tokensBon[token.bonus]+=1
 		token.move(self.tokensPos[token.bonus][0]-token.a[0], self.tokensPos[token.bonus][1]-token.a[1])
-		Player.tokenCount+=1
-		Player.tmpTokens[token.bonus]+=1
+		self.tokenCount+=1
+		self.tmpTokens[token.bonus]+=1
 		self.tokensPos[token.bonus][1]+=10
+		# print Glob.tokensPos[token.bonus] 
+		Glob.tokensPos[token.bonus][1]-=10
+		# print Glob.tokensPos[token.bonus] 
 		self.tokens.insert(0, Glob.tokens.pop(Glob.tokens.index(token)))
 
-	@staticmethod
-	def can_buy_second_token(token):
-		tmpValues = Player.tmpTokens.values()
-		if tmpValues.count(1)==1 and Player.tmpTokens.get(token.bonus)==1:
+	# @staticmethod
+	def can_buy_second_token(self, token):
+		tmpValues = self.tmpTokens.values()
+		if tmpValues.count(1)==1 and self.tmpTokens.get(token.bonus)==1:
 			return True
 		else:
 			return False
 
-	# TODO: cała funkcja kupowania karty jest do zrobienia. na razie jedynie moge zakupic karte, jesli mam fundusze
-	# po pierwsze nie są zwracane żetony które były użyte do kupna
 	def buy_card(self, card):
 		if self.gotToken:
 			return
@@ -110,6 +107,8 @@ class Player(object):
 		if self.can_buy_card(card):
 			self.return_tokens_after_buy(card)
 			self.move_card_and_update(card)
+		else:
+			return
 
 		self.state.update_state()
 		Glob.game.is_end()
@@ -143,8 +142,9 @@ class Player(object):
 				for i in range(tmpCost[stone]):
 					tmpToken = self.find_appr_token_here(stone)
 					self.tokensPos[stone][1]-=10
+					Glob.tokensPos[stone][1]+=10
 					Glob.game.return_token(tmpToken)
-					Glob.tokens.insert(0, self.tokens.pop(self.tokens.index(tmpToken)))				
+					Glob.tokens.insert(0, self.tokens.pop(self.tokens.index(tmpToken)))
 
 	def find_appr_token_here(self, stone):
 		for token in self.tokens:

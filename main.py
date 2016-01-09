@@ -7,22 +7,9 @@ from Card import *
 from Token import *
 
 
-
-# canvas.create_text(event.x, event.y, text="clicked at " + str(event.x) + ", " + str(event.y))
-# def call(event):
-# 	toPrint = "clicked at " + str(event.x) + ", " + str(event.y)
-# 	canvas.create_text(event.x, event.y, text=toPrint)
-# 	canvas.create_rectangle(0,0,20,20)
-
-
 def B1_click(event):
 	for card in Glob.game.__getitem__():
 		if card.a[0]<=event.x<=card.b[0] and card.a[1]<=event.y<=card.b[1]:
-			# if Glob.canvas.itemcget(card.tag, 'state') == '':
-			# 	Glob.canvas.itemconfig(card.tag, state='hidden')
-			# elif Glob.canvas.itemcget(card.tag, 'state') == 'hidden':
-			# 	Glob.canvas.itemconfig(card.tag, state='')
-			# najs! to już masz ogarniętą zmianę graczy :>
 			Glob.game.actualPlayer.buy_card(card)
 			return
 
@@ -31,7 +18,6 @@ def B1_click(event):
 			Glob.game.actualPlayer.get_token(token)
 			return
 
-# ~~heheszkiniewazne~~game.change_player()
 ### glowny program
 
 Glob.root.title("Splendor")
@@ -53,18 +39,15 @@ for i in range(20):
 
 Glob.canvas.create_rectangle(40, 50, 40+Glob.SIZE_X, 50+Glob.SIZE_Y, fill='black')
 
-# TODO: te trzy prostkaty to karty majace zakrywać stosy. trzeba zrobić grafiki i wstawić
+# TODO: te trzy prostkaty ^ to karty majace zakrywać stosy. trzeba zrobić grafiki i wstawić
 
-x=50
-y=500
 tmpStones = Glob.stonesNames*5
-for i in tmpStones:
-	if tmpStones.index(i)==0:
-		x=50
-		y+=10
-	Token(x, y, i)
-	x+=70
-	
+for stone in tmpStones:
+	Glob.tokensPos[stone][1]+=10
+	Token(Glob.tokensPos[stone][0], Glob.tokensPos[stone][1], stone)
+for pos in Glob.tokensPos:
+	Glob.tokensPos[pos][1] -= 10
+
 
 Glob.game = Game()
 Glob.game.deal_cards()

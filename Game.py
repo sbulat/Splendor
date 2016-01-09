@@ -7,9 +7,9 @@ from Card import *
 
 class Game(object):
 	def __init__(self):
-		self.firstLev = []
-		self.secLev = []
-		self.thirdLev = []
+		self.firstLev = []  # zmien na list comprehension
+		self.secLev = [] # tak samo
+		self.thirdLev = [] # tak samo
 		for i in range(4):
 			self.firstLev.append(Glob.firstLevCards.pop())
 			self.secLev.append(Glob.secLevCards.pop())
@@ -17,7 +17,7 @@ class Game(object):
 
 		self.players = [Player(), Player()]
 		self.actualPlayer = self.players[0]
-		self.textId = Glob.canvas.create_text(Glob.WINDOW_X-5, 5, anchor='e', text='Player #'+str(self.actualPlayer.id))
+		self.textId = Glob.canvas.create_text(Glob.WINDOW_X-5, 15, anchor='e', text='Player #'+str(self.actualPlayer.id))
 
 	def __getitem__(self):
 		return self.firstLev + self.secLev + self.thirdLev
@@ -91,12 +91,27 @@ class Game(object):
 
 	def change_player(self):
 		# TODO: dodaj ze trzeba wcisnac spacje żeby zmienić gracza
+
 		for token in self.actualPlayer.tokens:
 			Glob.canvas.itemconfig(token.tag, state='hidden')
 		for card in self.actualPlayer.cards:
 			Glob.canvas.itemconfig(card.tag, state='hidden')
 
+		# self.actualPlayer.tokenCount = 0
+		# self.actualPlayer.gotToken = False
+		# self.actualPlayer.tmpTokens = copy.deepcopy(Glob.stones)
+		# print self.actualPlayer.tokenCount
+		# print self.actualPlayer.gotToken
+		# print self.actualPlayer.tmpTokens
+		self.actualPlayer.tokenCount = 0
+		self.actualPlayer.gotToken = False
+		self.actualPlayer.tmpTokens = copy.deepcopy(Glob.stones)
+
 		self.actualPlayer = self.players[1] if self.actualPlayer==self.players[0] else self.players[0]
+
+		# print self.actualPlayer.tokenCount
+		# print self.actualPlayer.gotToken
+		# print self.actualPlayer.tmpTokens
 
 		for token in self.actualPlayer.tokens:
 			Glob.canvas.itemconfig(token.tag, state='normal')
