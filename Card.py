@@ -35,14 +35,13 @@ class Card(object):
 		if not( type(x)==int or type(y)==int ):
 			raise TypeError()
 
-		self.a = self.a[0]+x, self.a[1]+y
-		self.b = self.a[0]+Glob.SIZE_X, self.a[1]+Glob.SIZE_Y
+		self.__setitem__(self.a[0]+x, self.a[1]+y)
 		Glob.canvas.move(self.tag, x, y)
 		Glob.canvas.tag_raise(self.tag)
 
 
 class FirstLevelCard(Card):
-	bonuses = (copy.deepcopy(Glob.stonesNames))*8
+	bonuses = Glob.stonesNames*8
 	random.shuffle(bonuses)
 
 	@classmethod

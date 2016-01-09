@@ -4,6 +4,24 @@ from Globals import *
 
 import copy
 
+class State(object):
+	def __init__(self):
+		self.vp = 0;
+		self.money = copy.deepcopy(Glob.stones)
+		self.tag = 'state'
+
+	def print_state(self):
+		Glob.canvas.create_text(Glob.WINDOW_X-5, 20, anchor='e', text='VP: '+str(self.vp), tags=self.tag)
+		i = 40
+		for stone in self.money:
+			Glob.canvas.create_image(Glob.WINDOW_X-5, i, anchor='e', image=Glob.stoneToImage[stone], tags=self.tag)
+			Glob.canvas.create_text(Glob.WINDOW_X-30, i, anchor='e', text=str(self.money[stone]), tags=self.tag)
+			i += 25
+
+	def update_state(self):
+		Glob.canvas.delete(self.tag)
+		self.print_state()
+
 class Player(object):
 	count = 0
 	tmpTokens = copy.deepcopy(Glob.stones)
@@ -13,20 +31,21 @@ class Player(object):
 	def __init__(self):
 		Player.count += 1
 		self.id = self.count
-		self.vp = 0
-		self.cards = []
+		self.endTurn = 0
+		self.state = State()
 		self.tokens = []
-		self.money = copy.deepcopy(Glob.stones)
+		self.cards = []
 		self.tokensBon = copy.deepcopy(Glob.stones)
 		self.cardsBon = copy.deepcopy(Glob.stones)
-		self.cardsPos = copy.deepcopy(Glob.stones)
 		self.tokensPos = copy.deepcopy(Glob.stones)
+		self.cardsPos = copy.deepcopy(Glob.stones)
 		self.set_cards_and_tokens_pos()
+		self.state.print_state()
 	
 	def set_cards_and_tokens_pos(self):
-		xC = 600
+		xC = 530
 		yC = 100
-		xT = 600
+		xT = 550
 		yT = 450
 		for pos in self.cardsPos:
 			self.cardsPos[pos] = [xC, yC]
@@ -35,30 +54,38 @@ class Player(object):
 			xT+=65
 
 	def get_token(self, token):
-		if Player.tokenCount>3:
-			raise NotImplementedError()
-		elif Player.tokenCount==3 or (2 in Player.tmpTokens.values()):
-			# pass
+		# if Player.tokenCount>3:
+		# 	raise NotImplementedError()
+		# elif Player.tokenCount==3 or (2 in Player.tmpTokens.values()):
+		# 	# pass
+		# 	Player.endTurn = 1
+		# 	# Player.tokenCount = 0
+		# 	# Player.gotToken = False
+		# 	# Player.tmpTokens = copy.deepcopy(Glob.stones)
+		# 	# koniec tury gracza
+		# else:
+		if Player.tmpTokens[token.bonus]==1:
+			if self.can_buy_second_token(token):
+				self.move_token_and_update(token)
+			else:
+				return
+		elif Player.tokenCount==2 and Player.tmpTokens[token.bonus]==1:
+			return
+		else:
+			self.move_token_and_update(token)
+
+		self.state.update_state()
+		if Player.tokenCount==3 or (2 in Player.tmpTokens.values()):
 			Player.tokenCount = 0
 			Player.gotToken = False
 			Player.tmpTokens = copy.deepcopy(Glob.stones)
-			# koniec tury gracza
-		else:
-			if Player.tmpTokens[token.bonus]==1:
-					if self.can_buy_second_token(token):
-						self.move_token_and_update(token)
-					else:
-						return
-			elif Player.tokenCount==2 and Player.tmpTokens[token.bonus]==1:
-				return
-			else:
-				self.move_token_and_update(token)
+			Glob.game.change_player()
 
 
 	# funkcja która przenosi znacznik i aktualizuje właściwości gracza
 	def move_token_and_update(self, token):
 		Player.gotToken = True
-		self.money[token.bonus]+=1
+		self.state.money[token.bonus]+=1
 		self.tokensBon[token.bonus]+=1
 		token.move(self.tokensPos[token.bonus][0]-token.a[0], self.tokensPos[token.bonus][1]-token.a[1])
 		Player.tokenCount+=1
@@ -84,13 +111,15 @@ class Player(object):
 			self.return_tokens_after_buy(card)
 			self.move_card_and_update(card)
 
+		self.state.update_state()
+		Glob.game.is_end()
+		Glob.game.change_player()
+
 	# funkcja która przenosi zakupioną kartę i aktualizuje właściwości gracza
 	def move_card_and_update(self, card):
-		self.money[card.bonus]+=1
+		self.state.money[card.bonus]+=1
 		self.cardsBon[card.bonus]+=1
-		self.vp += int(card.vp)
-		for stone in card.cost:
-			self.money[stone]-=card.cost[stone]
+		self.state.vp += 0 if card.vp=='' else int(card.vp)
 
 		Glob.game.draw_new_card(type(card), card)			
 		card.move(self.cardsPos[card.bonus][0]-card.a[0], self.cardsPos[card.bonus][1]-card.a[1])
@@ -99,7 +128,7 @@ class Player(object):
 
 	def can_buy_card(self, card):
 		for stone in card.cost:
-			if self.money[stone]<card.cost[stone]:
+			if self.state.money[stone]<card.cost[stone]:
 				return False
 		return True
 
@@ -110,6 +139,7 @@ class Player(object):
 				tmpCost[stone] = card.cost[stone] - self.cardsBon[stone] # odejmowanie bonusów, czyli ile trzeba wydać żetonów
 				tmpCost[stone] = tmpCost[stone] if tmpCost[stone]>=0 else 0 # jeśli wynik byłby ujemny ustawiam 0
 				self.tokensBon[stone] -= tmpCost[stone] # odejmuje pozostały koszt od posiadanych żetonów
+				self.state.money[stone] -= tmpCost[stone] # odejmuje również od ogólnie posiadanych
 				for i in range(tmpCost[stone]):
 					tmpToken = self.find_appr_token_here(stone)
 					self.tokensPos[stone][1]-=10
@@ -119,4 +149,4 @@ class Player(object):
 	def find_appr_token_here(self, stone):
 		for token in self.tokens:
 			if token.bonus==stone:
-				return token	
+				return token
