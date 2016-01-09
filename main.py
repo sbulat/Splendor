@@ -7,22 +7,13 @@ from Card import *
 from Token import *
 
 
-def B1_click(event):
-	for card in Glob.game.__getitem__():
-		if card.a[0]<=event.x<=card.b[0] and card.a[1]<=event.y<=card.b[1]:
-			Glob.game.actualPlayer.buy_card(card)
-			return
-
-	for token in Glob.tokens:
-		if token.a[0]<=event.x<=token.b[0] and token.a[1]<=event.y<=token.b[1]:
-			Glob.game.actualPlayer.get_token(token)
-			return
-
 ### glowny program
 
+Glob.root.resizable(0,0)
 Glob.root.title("Splendor")
 Glob.canvas.pack()
-Glob.canvas.bind("<Button-1>", B1_click)
+Glob.canvas.bind("<Button-1>", Glob.B1_click)
+# Glob.canvas.bind("<Key>", Glob.key_pressed)
 
 for i in range(40):
 	FirstLevelCard(40,350)

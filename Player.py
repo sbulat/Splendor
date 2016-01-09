@@ -10,6 +10,7 @@ class State(object):
 		self.money = copy.deepcopy(Glob.stones)
 		self.tag = 'state'
 
+	# drukowanie punktów zwycięstwa i posiadanych bonusów(kamieni)
 	def print_state(self):
 		Glob.canvas.create_text(Glob.WINDOW_X-5, 35, anchor='e', text='VP: '+str(self.vp), tags=self.tag)
 		i = 55
@@ -18,6 +19,7 @@ class State(object):
 			Glob.canvas.create_text(Glob.WINDOW_X-30, i, anchor='e', text=str(self.money[stone]), tags=self.tag)
 			i += 25
 
+	# aktualiacja danych
 	def update_state(self):
 		Glob.canvas.delete(self.tag)
 		self.print_state()
@@ -41,6 +43,7 @@ class Player(object):
 		self.set_cards_and_tokens_pos()
 		self.state.print_state()
 	
+	# ustawienie pozycji dla kart w polu gracza
 	def set_cards_and_tokens_pos(self):
 		xC = 530
 		yC = 100
@@ -52,17 +55,9 @@ class Player(object):
 			xC+=90
 			xT+=65
 
+	# zabieranie żetonu:
+	# można zabrać trzy różne lub dwa tego samego rodzaju
 	def get_token(self, token):
-		# if self.tokenCount>3:
-		# 	raise NotImplementedError()
-		# elif self.tokenCount==3 or (2 in self.tmpTokens.values()):
-		# 	pass
-		# 	# Player.endTurn = 1
-		# 	# Player.tokenCount = 0
-		# 	# Player.gotToken = False
-		# 	# self.tmpTokens = copy.deepcopy(Glob.stones)
-		# 	# koniec tury gracza
-		# else:
 		if self.tmpTokens[token.bonus]==1:
 			if self.can_buy_second_token(token):
 				self.move_token_and_update(token)
@@ -87,11 +82,10 @@ class Player(object):
 		self.tokenCount+=1
 		self.tmpTokens[token.bonus]+=1
 		self.tokensPos[token.bonus][1]+=10
-		# print Glob.tokensPos[token.bonus] 
 		Glob.tokensPos[token.bonus][1]-=10
-		# print Glob.tokensPos[token.bonus] 
 		self.tokens.insert(0, Glob.tokens.pop(Glob.tokens.index(token)))
 
+	# jeśli gracz ma jeden żeton to może kupić żeton tego samego rodzaju
 	def can_buy_second_token(self, token):
 		tmpValues = self.tmpTokens.values()
 		if tmpValues.count(1)==1 and self.tmpTokens.get(token.bonus)==1:
@@ -99,6 +93,11 @@ class Player(object):
 		else:
 			return False
 
+	# kupowanie karty:
+	# sprawdzamy czy nie wzięto już żetonu, jeśli tak to return
+	# sprawdzamy czy można kupić kartę(can_buy_card())
+	# 	zwracamy tokeny
+	# 	przesuwamy karte i dajemy ją graczowi
 	def buy_card(self, card):
 		if self.gotToken:
 			return
@@ -110,7 +109,8 @@ class Player(object):
 			return
 
 		self.state.update_state()
-		Glob.game.is_end()
+		if Glob.game.is_end():
+			return
 		Glob.game.change_player()
 
 	# funkcja która przenosi zakupioną kartę i aktualizuje właściwości gracza
@@ -124,12 +124,14 @@ class Player(object):
 		self.cards.append(card)
 		self.cardsPos[card.bonus][1]+=23
 
+	# czy można kupić kartę - czy koszt karty jest mniejszy od posiadanych funduszy
 	def can_buy_card(self, card):
 		for stone in card.cost:
 			if self.state.money[stone]<card.cost[stone]:
 				return False
 		return True
 
+	# zwracanie żetonów po zakupie: uaktualnianie funduszy, pozycji żetonów
 	def return_tokens_after_buy(self, card):
 		tmpCost = copy.deepcopy(Glob.stones)
 		for stone in tmpCost:
@@ -145,6 +147,7 @@ class Player(object):
 					Glob.game.return_token(tmpToken)
 					Glob.tokens.insert(0, self.tokens.pop(self.tokens.index(tmpToken)))
 
+	# znajdowanie odpowiedniego żetonu po nazwie(pierwszego w self.tokens czyli tego którego szukamy)
 	def find_appr_token_here(self, stone):
 		for token in self.tokens:
 			if token.bonus==stone:

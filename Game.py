@@ -4,21 +4,23 @@ from Globals import Glob
 from Player import *
 from Card import *
 
+import tkMessageBox
 
 class Game(object):
 	def __init__(self):
-		self.firstLev = []  # zmien na list comprehension
-		self.secLev = [] # tak samo
-		self.thirdLev = [] # tak samo
-		for i in range(4):
-			self.firstLev.append(Glob.firstLevCards.pop())
-			self.secLev.append(Glob.secLevCards.pop())
-			self.thirdLev.append(Glob.thirdLevCards.pop())
+		self.firstLev = [Glob.firstLevCards.pop() for i in range(4)]
+		self.secLev = [Glob.secLevCards.pop() for i in range(4)]
+		self.thirdLev = [Glob.thirdLevCards.pop() for i in range(4)]
+		# for i in range(4):
+		# 	self.firstLev.append(Glob.firstLevCards.pop())
+		# 	self.secLev.append(Glob.secLevCards.pop())
+		# 	self.thirdLev.append(Glob.thirdLevCards.pop())
 
-		self.players = [Player(), Player(),Player(), Player()]
+		self.players = [Player(), Player()]
 		self.actualPlayer = self.players[0]
 		self.textId = Glob.canvas.create_text(Glob.WINDOW_X-5, 15, anchor='e', text='Player #'+str(self.actualPlayer.id))
 		self.playerIter = self.player_iterator(0)
+		self.nextTurn = 0
 
 	def __getitem__(self):
 		return self.firstLev + self.secLev + self.thirdLev
@@ -85,10 +87,12 @@ class Game(object):
 				return Glob.tokens.index(token)
 
 	def is_end(self):
-		if(self.actualPlayer.state.vp>=15):
-			print "KONIEC! Wygrał gracz #" + str(self.actualPlayer.id)
+		if(self.actualPlayer.state.vp>=0):
+			tkMessageBox.showinfo("Koniec!", "Wygrał gracz #"+str(self.actualPlayer.id)+"!")
 			Glob.canvas.unbind("<Button-1>")
-		# TODO: komunikat, pop up box, że kuniec
+			return True
+		else:
+			return False
 
 	def change_player(self):
 		# TODO: dodaj ze trzeba wcisnac spacje żeby zmienić gracza
