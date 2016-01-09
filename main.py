@@ -27,19 +27,21 @@ Glob.canvas.bind("<Button-1>", B1_click)
 for i in range(40):
 	FirstLevelCard(40,350)
 
-Glob.canvas.create_rectangle(40, 350, 40+Glob.SIZE_X, 350+Glob.SIZE_Y, fill='black')
+for i in reversed(range(3)):
+	Glob.canvas.create_image(41-(i*4)+(Glob.SIZE_X/2), 351-(i*4)+(Glob.SIZE_Y/2), image=Glob.cardReverse['first'])
 
 for i in range(30):
 	SecondLevelCard(40,200)
 
-Glob.canvas.create_rectangle(40, 200, 40+Glob.SIZE_X, 200+Glob.SIZE_Y, fill='black')
+for i in reversed(range(3)):
+	Glob.canvas.create_image(41-(i*4)+(Glob.SIZE_X/2), 201-(i*4)+(Glob.SIZE_Y/2), image=Glob.cardReverse['second'])
 
 for i in range(20):
 	ThirdLevelCard(40,50)
 
-Glob.canvas.create_rectangle(40, 50, 40+Glob.SIZE_X, 50+Glob.SIZE_Y, fill='black')
+for i in reversed(range(3)):
+	Glob.canvas.create_image(41-(i*4)+(Glob.SIZE_X/2), 51-(i*4)+(Glob.SIZE_Y/2), image=Glob.cardReverse['third'])
 
-# TODO: te trzy prostkaty ^ to karty majace zakrywać stosy. trzeba zrobić grafiki i wstawić
 
 tmpStones = Glob.stonesNames*5
 for stone in tmpStones:

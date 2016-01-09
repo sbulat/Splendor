@@ -4,8 +4,6 @@ from Tkinter import *
 import tkFont
 
 class Glob(object):
-	# mnoznik - do zmiany szerokości i wysokości
-	# albo po prostu lista dostępnych rozmiarów
 	WINDOW_X = 1024
 	WINDOW_Y = 700
 	SIZE_X = 80
@@ -29,4 +27,8 @@ class Glob(object):
 					'blue': PhotoImage(file='./images/sapphire.ppm'),
 					'white': PhotoImage(file='./images/diamond.ppm'),
 					'black': PhotoImage(file='./images/onyx.ppm')
+					}
+	cardReverse = {'first': PhotoImage(file='./images/first.ppm'),
+					'second': PhotoImage(file='./images/second.ppm'),
+					'third': PhotoImage(file='./images/third.ppm')
 					}
