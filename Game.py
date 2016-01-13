@@ -95,7 +95,7 @@ class Game(object):
 
 	# sprawdza czy koniec rozgrywki
 	def is_end(self):
-		if(self.actualPlayer.state.vp>=0):
+		if(self.actualPlayer.state.vp>=15):
 			tkMessageBox.showinfo("Koniec!", "Wygrał gracz #"+str(self.actualPlayer.id)+"!")
 			Glob.canvas.unbind("<Button-1>")
 			return True
