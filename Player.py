@@ -32,6 +32,7 @@ class Player(object):
 		self.id = self.count
 		self.tokenCount = 0
 		self.gotToken = False
+		self.gotCard = False
 		self.tmpTokens = copy.deepcopy(Glob.stones)
 		self.state = State()
 		self.tokens = []
@@ -58,7 +59,9 @@ class Player(object):
 	# zabieranie żetonu:
 	# można zabrać trzy różne lub dwa tego samego rodzaju
 	def get_token(self, token):
-		if self.tokenCount>=3 or (2 in self.tmpTokens.values()):
+		if self.gotCard:
+			return
+		elif self.tokenCount>=3 or (2 in self.tmpTokens.values()):
 			return
 		elif self.tmpTokens[token.bonus]==1:
 			if self.can_buy_second_token(token):
@@ -100,7 +103,7 @@ class Player(object):
 	# 	zwracamy tokeny
 	# 	przesuwamy karte i dajemy ją graczowi
 	def buy_card(self, card):
-		if self.gotToken:
+		if self.gotToken or self.gotCard:
 			return
 
 		if self.can_buy_card(card):
@@ -112,13 +115,14 @@ class Player(object):
 		self.state.update_state()
 		if Glob.game.is_end():
 			return
-		Glob.game.change_player()
+		Glob.game.nextTurn.config(state='normal')
 
 	# funkcja która przenosi zakupioną kartę i aktualizuje właściwości gracza
 	def move_card_and_update(self, card):
 		self.state.money[card.bonus]+=1
 		self.cardsBon[card.bonus]+=1
 		self.state.vp += 0 if card.vp=='' else int(card.vp)
+		self.gotCard = True
 
 		Glob.game.draw_new_card(type(card), card)			
 		card.move(self.cardsPos[card.bonus][0]-card.a[0], self.cardsPos[card.bonus][1]-card.a[1])

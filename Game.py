@@ -113,6 +113,7 @@ class Game(object):
 
 		self.actualPlayer.tokenCount = 0
 		self.actualPlayer.gotToken = False
+		self.actualPlayer.gotCard = False
 		self.actualPlayer.tmpTokens = copy.deepcopy(Glob.stones)
 
 		self.actualPlayer = self.playerIter.next()
